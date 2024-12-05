@@ -30,6 +30,19 @@ export class Map {
      *
      * @param {number} x
      * @param {number} y
+     * @returns boolean
+     */
+    has(x, y){
+        if(x < 0 || x >= this.width || y < 0 || y >= this.height){
+            return this.loop || this.data.fallback;
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param {number} x
+     * @param {number} y
      * @returns {x: number, y: number, data: ?}
      */
     get(x, y){
@@ -81,6 +94,18 @@ export class Map {
                 }
             }
         }
+    }
+
+    findAll(condition){
+        const result = [];
+        for(let y = 0; y < this.height; y++) {
+            for(let x = 0; x < this.width; x++) {
+                if(condition(this.data[y][x].data)){
+                    result.push(this.data[y][x]);
+                }
+            }
+        }
+        return result;
     }
 }
 
