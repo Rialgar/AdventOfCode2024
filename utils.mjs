@@ -27,12 +27,21 @@ export class Map {
     }
 
     /**
-     *
+     * @signature `has(x, y)`
      * @param {number} x
      * @param {number} y
+     * 
+     * @signature `has(pos)`
+     * @param {Object} pos
+     * @param {number} pos.x
+     * @param {number} pos.y
      * @returns boolean
      */
     has(x, y){
+        if(typeof x === 'object'){
+            y = x.y;
+            x = x.x;            
+        }
         if(x < 0 || x >= this.width || y < 0 || y >= this.height){
             return this.loop || this.data.fallback;
         }
@@ -40,13 +49,21 @@ export class Map {
     }
 
     /**
-     *
+     * @signature `get(x, y)`
      * @param {number} x
      * @param {number} y
+     * 
+     * @signature `get(pos)`
+     * @param {Object} pos
+     * @param {number} pos.x
+     * @param {number} pos.y
      * @returns {x: number, y: number, data: ?}
      */
     get(x, y){
-        
+        if(typeof x === 'object'){
+            y = x.y;
+            x = x.x;            
+        }
         if(x < 0 || x >= this.width || y < 0 || y >= this.height){
             if(this.loop){
                 let rx = x % this.width;
@@ -67,13 +84,25 @@ export class Map {
     }
 
     /**
-     *
+     * @signature `set(x, y, data)`
      * @param {number} x
      * @param {number} y
      * @param {*} data
+     * 
+     * @signature `set(pos, data)`
+     * @param {Object} pos
+     * @param {number} pos.x
+     * @param {number} pos.y
+     * @param {*} data
+     * 
      * @returns {x: number, y: number, data: ?}
      */
     set(x, y, data){
+        if(!data && typeof x === 'object'){
+            data = y;
+            y = x.y;
+            x = x.x;            
+        }
         if(x < 0 || x >= this.width || y < 0 || y >= this.height){
             throw new Error(`Map index out of bounds: ${x}/${this.width}; ${y}/${this.height}`);
         } else {
