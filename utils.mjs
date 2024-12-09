@@ -168,12 +168,16 @@ export function initMap(width, height, value, fallback){
     return initMapFactory(width, height, () => value, fallback);
 }
 
+export function copyMap(map){
+    return initMapFactory(map.width, map.height, (x, y) => map.get(x, y), map.fallback);
+}
+
 export function initMapFactory(width, height, factory, fallback){
     const data = [];
     for(let y = 0; y < height; y++) {
         data [y] = [];
         for(let x = 0; x < width; x++) {
-            data[y][x] = {x, y, data: factory()};
+            data[y][x] = {x, y, data: factory(x, y)};
         }
     }
     return new Map(data, fallback);
