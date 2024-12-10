@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { type } from 'node:os';
 
 export async function readLines(file){
     const contents = await fs.readFile(file, {encoding: 'utf8'});
@@ -9,6 +10,31 @@ export async function readChars(file){
     const contents = await fs.readFile(file, {encoding: 'utf8'});
     return contents.split('\n').map(line => line.split(''));
 }
+
+export const cardinals = [
+    {x:0, y:-1},
+    {x:1, y:0},
+    {x:0, y:1},
+    {x:-1, y:0},
+]
+
+export const diagonals = [
+    {x:1, y:-1},
+    {x:1, y:1},
+    {x:-1, y:1},
+    {x:-1, y:-1},    
+]
+
+export const directions = [
+    {x:0, y:-1},
+    {x:1, y:-1},
+    {x:1, y:0},    
+    {x:1, y:1},
+    {x:0, y:1},
+    {x:-1, y:1},
+    {x:-1, y:0},
+    {x:-1, y:-1},    
+]
 
 export class Map {
     data = [];
@@ -135,6 +161,51 @@ export class Map {
             }
         }
         return result;
+    }
+
+    neighbours4(x, y){
+        if(typeof x === 'object'){
+            y = x.y;
+            x = x.x;            
+        }        
+        let out = [];
+        for(let dir of cardinals){
+            const location = add2D({x, y}, dir);
+            if(this.has(location)){
+                out.push(this.get(location));
+            }
+        }
+        return out;
+    }
+
+    neighboursDiagonal(x, y){
+        if(typeof x === 'object'){
+            y = x.y;
+            x = x.x;            
+        }        
+        let out = [];
+        for(let dir of diagonals){
+            const location = add2D({x, y}, dir);
+            if(this.has(location)){
+                out.push(this.get(location));
+            }
+        }
+        return out;
+    }
+
+    neighbours8(x, y){
+        if(typeof x === 'object'){
+            y = x.y;
+            x = x.x;            
+        }
+        let out = [];
+        for(let dir of directions){
+            const location = add2D({x, y}, dir);
+            if(this.has(location)){
+                out.push(this.get(location));
+            }
+        }
+        return out;
     }
 }
 
