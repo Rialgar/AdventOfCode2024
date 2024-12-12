@@ -69,7 +69,7 @@ export class Map {
             x = x.x;            
         }
         if(x < 0 || x >= this.width || y < 0 || y >= this.height){
-            return this.loop || this.data.fallback;
+            return this.loop || this.fallback;
         }
         return true;
     }
@@ -206,6 +206,14 @@ export class Map {
             }
         }
         return out;
+    }
+
+    * iterate(){
+        for(let y = 0; y < this.height; y++) {
+            for(let x = 0; x < this.width; x++) {
+                yield(this.data[y][x]);
+            }
+        }
     }
 }
 
@@ -554,6 +562,10 @@ export function a_star(map, start, goal, {
 
 export function add2D(a, b){
     return {x: a.x+b.x, y: a.y+b.y};
+}
+
+export function sub2D(a, b){
+    return {x: a.x-b.x, y: a.y-b.y};
 }
 
 export function scale2D({x, y}, scale){
