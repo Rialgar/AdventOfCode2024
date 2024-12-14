@@ -11,6 +11,14 @@ export async function readChars(file){
     return contents.split('\n').map(line => line.split(''));
 }
 
+export function leftPad(v, length, c = ' '){
+    v = v.toString();
+    while(v.length < length){
+        v = c + v;
+    }
+    return v;
+}
+
 export const cardinals = [
     {x:0, y:-1},
     {x:1, y:0},
@@ -137,8 +145,8 @@ export class Map {
         }
     }
 
-    print( mapper = v => v ){
-        console.log(this.data.map(row => row.map(({data}) => mapper(data)).join('')).join('\n'));
+    print( mapper = v => v , prefixMapper = () => ''){
+        console.log(this.data.map((row, index) => prefixMapper(row, index) + row.map(({data}) => mapper(data)).join('')).join('\n'));
     }
 
     find(condition){
