@@ -7,8 +7,11 @@ export async function readLines(file){
 }
 
 export async function readChars(file){
-    const contents = await fs.readFile(file, {encoding: 'utf8'});
-    return contents.split('\n').map(line => line.split(''));
+    return (await readLines(file)).map(line => line.split(''));
+}
+
+export async function readCharsFlat(file){
+    return (await readLines(file)).map(line => line.split('')).flat();
 }
 
 export function leftPad(v, length, c = ' '){
