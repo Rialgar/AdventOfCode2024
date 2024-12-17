@@ -22,11 +22,16 @@ export function leftPad(v, length, c = ' '){
     return v;
 }
 
+export const north = {x:0, y:-1};
+export const east = {x:1, y:0};
+export const south = {x:0, y:1};
+export const west = {x:-1, y:0};
+
 export const cardinals = [
-    {x:0, y:-1},
-    {x:1, y:0},
-    {x:0, y:1},
-    {x:-1, y:0},
+    north,
+    east,
+    south,
+    west
 ]
 
 export const diagonals = [
@@ -512,10 +517,11 @@ export function manhattenDistance(a, b){
  * @param {{x: number, y: number}} goal
  * @param {{
  *  heuristic: (field: {x:number, y:number, data:?}) => number,
- *  cost:(next: {x:number, y:number, data:?}, current: {x:number, y:number, data:?}) => number,
+ *  cost:(next: {x:number, y:number, data:?}, fields: [{x:number, y:number, data:?}]) => number,
  *  filter: (fields: [{x:number, y:number, data:?}]) => boolean,
  *  visitedKey: (fields: [{x:number, y:number, data:?}]) => string,
- *  movement_candidates: {x:number, y:number}[]
+ *  movement_candidates: {x:number, y:number}[],
+ *  error_margin: number,
  * }} config
  */
 export function a_star(map, start, goal, {
@@ -523,7 +529,8 @@ export function a_star(map, start, goal, {
     cost = () => 1 ,
     filter = () => true,
     visitedKey = tiles => `${tiles[0].x}:${tiles[0].y}`,
-    movement_candidates = [{x:-1, y:0}, {x:1, y:0}, {x:0, y:-1}, {x:0, y:1}]
+    movement_candidates = cardinals,
+    error_margin = 0
 }){
     let maxCost = 0;
     const visited = {};
@@ -535,11 +542,20 @@ export function a_star(map, start, goal, {
         }
     ];
 
-    while(paths.length > 0){ //will reach 0 if there is no path to the goal
+    const solutions = [];
+
+    while(paths.length > 0){ //will reach 0 if there is no (more) paths to the goal
         const current = paths.shift();
 
-        if(visited[(visitedKey(current.fields))]){
-            continue;
+        const currentVisKey = visitedKey(current.fields);
+        if(visited[currentVisKey] !== undefined){
+            if(error_margin === 0 || visited[currentVisKey] + error_margin < current.cost){
+                continue;
+            }
+        }
+
+        if(solutions.length > 0 && solutions[0].cost + error_margin < current.cost){
+            return solutions;
         }
 
         if(current.cost > maxCost){
@@ -549,25 +565,47 @@ export function a_star(map, start, goal, {
         const tip = current.fields[0];
 
         if(tip.x === goal.x && tip.y === goal.y){
-            return current;
+            if(error_margin === 0){
+                return current;
+            } else if(solutions.length > 0 && solutions[0].cost + error_margin < current.cost) {
+                return solutions;
+            } else {
+                solutions.push(current);
+                continue;
+            }
         }
 
         for (const candidate of movement_candidates) {
             const next = map.get(tip.x + candidate.x, tip.y + candidate.y);
             const newFields = [next, ... current.fields];
 
-            if(next.data && filter(newFields) && !visited[(visitedKey(newFields))]){
+            if(next.data && filter(newFields)){
+                const newVisKey = visitedKey(newFields);
+                if(error_margin === 0 && visited[newVisKey] !== undefined){
+                    continue
+                }
+
                 const newPath = {
-                    cost: current.cost + cost(next, tip),
+                    cost: current.cost + cost(next, current.fields),
                     fields : newFields
-                }                
+                }
+
+                if(error_margin > 0 && visited[newVisKey] !== undefined && visited[newVisKey] + error_margin < newPath.cost){
+                    continue;
+                }
 
                 newPath.fValue = newPath.cost + heuristic(next);
                 insert(paths, newPath, (a, b) => a.fValue - b.fValue);
             }
         }
 
-        visited[(visitedKey(current.fields))] = true;
+        if(visited[currentVisKey] === undefined){
+            visited[currentVisKey] = current.cost;
+        }
+    }
+
+    if(error_margin > 0){
+        return solutions;
     }
 }
 
