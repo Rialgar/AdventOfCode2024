@@ -530,7 +530,8 @@ export function a_star(map, start, goal, {
     filter = () => true,
     visitedKey = tiles => `${tiles[0].x}:${tiles[0].y}`,
     movement_candidates = cardinals,
-    error_margin = 0
+    error_margin = 0,
+    print = true,
 }){
     let maxCost = 0;
     const visited = {};
@@ -560,7 +561,9 @@ export function a_star(map, start, goal, {
 
         if(current.cost > maxCost){
             maxCost = current.cost;
-            console.log(maxCost);
+            if(print){
+                console.log(maxCost);
+            }
         }
         const tip = current.fields[0];
 
