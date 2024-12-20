@@ -224,6 +224,22 @@ export class Map {
         return out;
     }
 
+    /**
+     * 
+     * @param {*} center 
+     * @param {*} range 
+     * @param {*} distFunc can be manhattanDistance or distance. Default is manhattanDistance
+     */
+    * fieldsInRange(center, range, distFunc = manhattenDistance){
+        for(let y = center.y - range; y <= center.y + range; y++) {
+            for(let x = center.x - range; x <= center.x + range; x++) {
+                if(this.has(x, y) && distFunc(center, {x, y}) <= range){
+                    yield this.get(x, y);
+                }
+            }
+        }        
+    }
+
     * iterate(){
         for(let y = 0; y < this.height; y++) {
             for(let x = 0; x < this.width; x++) {
@@ -522,6 +538,7 @@ export function manhattenDistance(a, b){
  *  visitedKey: (fields: [{x:number, y:number, data:?}]) => string,
  *  movement_candidates: {x:number, y:number}[],
  *  error_margin: number,
+ *  print: boolean
  * }} config
  */
 export function a_star(map, start, goal, {
